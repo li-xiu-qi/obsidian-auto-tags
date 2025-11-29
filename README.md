@@ -4,8 +4,6 @@
 
 auto tags 是一个 Obsidian ([https://obsidian.md](https://obsidian.md)) 插件，通过使用各种大型语言模型（LLM）来分析并为你的文档一键生成标签。
 
-auto tags 是一个 Obsidian ([https://obsidian.md](https://obsidian.md)) 插件，通过使用各种大型语言模型（LLM）来分析并为你的文档一键生成标签。
-
 该插件会分析你当前编辑器中打开的文档内容以及你历史上使用过的标签（若有），返回最多 5 个你之前使用过的相关标签，并最多生成 3 个全新的建议标签。
 
 本项目继承自 [lucagrippa/obsidian-ai-tagger](https://github.com/lucagrippa/obsidian-ai-tagger)，并在此基础上进行了代码更新和功能增强。
