@@ -67,3 +67,48 @@
 - Release 创建为草稿，需要手动发布以使其公开。
 - 确保 `GITHUB_TOKEN` 有足够的权限创建 Release 和上传资产。
 - 如果构建失败，检查 `npm run build` 的配置和依赖。
+ - 工作流会上传编译后的插件文件作为 Release 资产：`main.js`、`manifest.json` 和 `styles.css`。
+
+## 常见错误与排查
+
+### 错误：`Error: Resource not accessible by integration`
+
+该错误表示 GitHub Actions 运行的 token（通常是 `GITHUB_TOKEN`）没有足够权限去创建 Release 或上传资产。这通常出现在以下场景：
+
+- 仓库 `Settings -> Actions -> General` 中的 Workflow permissions 设置为 `Read repository contents only`。
+- 触发工作流的事件来自 fork（为安全起见，来自 fork 的运行受限）。
+- 组织策略或分支保护策略限制了写权限。
+
+解决步骤：
+
+1) 在仓库 Settings -> Actions -> General 中将 Workflow permissions 设置为 **Read and write permissions**。
+
+2) 如果你的 tag 是从 fork 推送或你需要更高权限，建议创建一个 Personal Access Token（PAT）并把它保存为 `RELEASE_TOKEN`：
+
+    - 在 GitHub：Settings -> Developer settings -> Personal access tokens -> Fine-grained tokens -> Generate new token。
+    - 选择目标仓库并设置以下 Repository permissions：
+       - Contents: Read and write
+       - Actions: Read and write
+       - Packages: Read and write（如果需要）
+    - 生成后复制 token（仅显示一次），并在仓库 Settings -> Secrets and variables -> Actions -> New repository secret 中创建 `RELEASE_TOKEN`。
+
+3) Workflow 里已经设置为优先使用 `secrets.RELEASE_TOKEN`，如果存在，将替代 `GITHUB_TOKEN`。设置好 secret 后，重新触发 workflow 或重新创建 tag。
+
+4) 如果上面步骤仍然失效，请把 GitHub Actions 的完整失败日志贴出来，我会帮你分析错误码（例如 403/401）并给出更具体的修复建议。
+
+## 可选：如何手动打包并上传 zip（如果你希望用户一次性下载 zip）
+
+1. 在本地或 CI 中创建 zip 包：
+
+   ```bash
+   zip -r plugin-v0.0.1.zip main.js manifest.json styles.css
+   ```
+
+2. 在 GitHub Releases 页面上传 zip，或使用 gh CLI：
+
+   ```bash
+   gh release upload v0.0.1 plugin-v0.0.1.zip --clobber
+   ```
+
+注：如果你希望恢复自动构建 zip 的功能，我可以在 workflow 中添加一个非常简单的打包上传步骤。
+
