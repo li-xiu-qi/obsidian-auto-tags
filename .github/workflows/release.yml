@@ -69,4 +69,20 @@ jobs:
           asset_name: styles.css
           asset_content_type: text/css
 
-      # Note: zip packaging and debug steps have been removed to keep the workflow simple.
+      - name: Ensure zip tool is installed
+        run: sudo apt-get update && sudo apt-get install -y zip
+
+      - name: Package plugin zip
+        run: zip -j obsidian-auto-tags-${{ github.ref_name }}.zip main.js manifest.json styles.css || true
+
+      - name: Upload release asset - plugin zip
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./obsidian-auto-tags-${{ github.ref_name }}.zip
+          asset_name: obsidian-auto-tags-${{ github.ref_name }}.zip
+          asset_content_type: application/zip
+
+      # Minimal workflow: build and upload assets (main.js, manifest.json, styles.css + zip)
